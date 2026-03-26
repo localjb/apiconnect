@@ -17,7 +17,7 @@ public class Connect {
         this.headers = new HashMap<String, String>();
     }
 
-    public void setHttpURLConnection(URL url) throws IOException {
+    private void setHttpURLConnection(URL url) throws IOException {
         this.httpURLConnection = (HttpURLConnection) url.openConnection();
     }
 
