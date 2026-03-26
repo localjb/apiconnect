@@ -151,7 +151,6 @@ public class ConnectUnitTest {
 
         RecordedRequest recordedRequest = server.takeRequest(5, TimeUnit.SECONDS);
         String header1 = recordedRequest.getHeaders().get("GetHeader1");
-        System.out.print(recordedRequest.getPath());
         assertEquals("This is get header 1", header1);
         assertEquals("GET", recordedRequest.getMethod());
         assertEquals("/status?param1=This+is+parameter+1+%26+1&param3=Parameter+3", recordedRequest.getPath());
