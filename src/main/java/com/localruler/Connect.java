@@ -13,7 +13,7 @@ public class Connect {
     private HttpMethod httpMethod;
 
     public Connect(){
-        this.parameters = new HashMap<String, String>();
+        this.parameters = new LinkedHashMap<String, String>();
         this.headers = new HashMap<String, String>();
     }
 
@@ -33,8 +33,16 @@ public class Connect {
         this.headers.put(headerName, headerValue);
     }
 
+    public void removeHeader(String headerName){
+        this.headers.remove(headerName);
+    }
+
     public void addParameter(String name, String value){
         this.parameters.put(name, value);
+    }
+
+    public void removeParameter(String name){
+        this.parameters.remove(name);
     }
 
     /*

@@ -100,4 +100,67 @@ public class ConnectUnitTest {
 
         assertEquals(null, connection);
     }
+
+    @Test
+    public void testHeaders() throws Exception{
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json")
+                .setBody("{\"status\":\"success\"}"));
+
+        connect.setRequestMethod(Connect.HttpMethod.POST);
+        connect.addHeader(Connect.RequestHeader.CONTENT_TYPE.getType(), "application/json");
+        connect.addHeader("PostHeader2", "This is the Post");
+        connect.addHeader("X-API-Key", "abcdefg123");
+        connect.removeHeader("PostHeader2");
+
+        HttpURLConnection connection = (HttpURLConnection)connect.doRequest("http://localhost:8099/status");
+        int responseCode = connection.getResponseCode();
+
+        RecordedRequest recordedRequest = server.takeRequest(5, TimeUnit.SECONDS);
+        String header1 = recordedRequest.getHeaders().get("PostHeader2");
+        assertEquals(null, header1);
+        assertEquals("abcdefg123", recordedRequest.getHeader("X-API-Key"));
+        assertEquals("POST", recordedRequest.getMethod());
+
+        String responseBody = new String(connection.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+        assertEquals("{\"status\":\"success\"}", responseBody);
+
+        assertEquals(200, responseCode, "Expected a 200 OK response");
+        connection.disconnect();
+
+    }
+
+    @Test
+    public void testParameters() throws Exception{
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json")
+                .setBody("{\"status\":\"success\"}"));
+
+        connect.setRequestMethod(Connect.HttpMethod.GET);
+        connect.addHeader(Connect.RequestHeader.CONTENT_TYPE.getType(),"application/json");
+        connect.addHeader("GetHeader1", "This is get header 1");
+        connect.addHeader("testGetHeader", "The Get Header Test");
+        connect.addParameter("param1", "This is parameter 1 & 1");
+        connect.addParameter("param2", "Parameter 2");
+        connect.addParameter("param3", "Parameter 3");
+        connect.removeParameter("param2");
+        HttpURLConnection connection = (HttpURLConnection)connect.doRequest("http://localhost:8099/status");
+        int responseCode = connection.getResponseCode();
+
+        RecordedRequest recordedRequest = server.takeRequest(5, TimeUnit.SECONDS);
+        String header1 = recordedRequest.getHeaders().get("GetHeader1");
+        System.out.print(recordedRequest.getPath());
+        assertEquals("This is get header 1", header1);
+        assertEquals("GET", recordedRequest.getMethod());
+        assertEquals("/status?param1=This+is+parameter+1+%26+1&param3=Parameter+3", recordedRequest.getPath());
+
+
+        String responseBody = new String(connection.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+        assertEquals("{\"status\":\"success\"}", responseBody);
+
+        assertEquals(200, responseCode, "Expected a 200 OK response");
+        connection.disconnect();
+    }
 }
